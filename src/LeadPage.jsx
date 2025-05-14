@@ -8,23 +8,21 @@ const LeadPage = () => {
   const [newLead, setNewLead] = useState({ name: "", email: "", phone: "" });
 
   useEffect(() => {
-    // Fetch leads on initial load
     axios.get("http://localhost:5000/api/leads")
       .then(response => setLeads(response.data))
       .catch(error => console.error("Error fetching leads:", error));
   }, []);
 
-  // Add lead
   const handleAddLead = () => {
+    if (!newLead.name || !newLead.email || !newLead.phone) return;
     axios.post("http://localhost:5000/api/leads", newLead)
       .then(response => {
         setLeads([...leads, response.data]);
-        setNewLead({ name: "", email: "", phone: "" }); // Clear form
+        setNewLead({ name: "", email: "", phone: "" });
       })
       .catch(error => console.error("Error adding lead:", error));
   };
 
-  // Delete lead
   const handleDeleteLead = (id) => {
     axios.delete(`http://localhost:5000/api/leads/${id}`)
       .then(() => {
@@ -34,75 +32,86 @@ const LeadPage = () => {
   };
 
   return (
-    <div className="container mx-auto my-10 p-6 max-w-4xl bg-white shadow-xl rounded-lg">
-      <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Lead Management</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-5xl backdrop-blur-md bg-white/70 rounded-xl shadow-2xl p-8">
+        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-10">📋 Lead Management</h1>
 
-      {/* Add New Lead Form */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Add New Lead</h2>
-        <div className="flex flex-col space-y-4">
-          <input
-            type="text"
-            placeholder="Name"
-            value={newLead.name}
-            onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
-            className="border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={newLead.email}
-            onChange={(e) => setNewLead({ ...newLead, email: e.target.value })}
-            className="border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="text"
-            placeholder="Phone"
-            value={newLead.phone}
-            onChange={(e) => setNewLead({ ...newLead, phone: e.target.value })}
-            className="border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        {/* Add Lead Form */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-700 mb-6">➕ Add New Lead</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {["name", "email", "phone"].map((field) => (
+              <div key={field} className="relative">
+                <input
+                  type={field === "email" ? "email" : "text"}
+                  id={field}
+                  value={newLead[field]}
+                  onChange={(e) => setNewLead({ ...newLead, [field]: e.target.value })}
+                  className="peer w-full border border-gray-300 bg-white/60 backdrop-blur-sm rounded-lg px-4 pt-6 pb-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                  placeholder=" "
+                />
+                <label
+                  htmlFor={field}
+                  className="absolute text-gray-600 text-sm top-2 left-4 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 transition-all"
+                >
+                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                </label>
+              </div>
+            ))}
+          </div>
           <button
             onClick={handleAddLead}
-            className="bg-blue-500 text-white p-3 rounded-md flex items-center justify-center space-x-2 hover:bg-blue-600 transition-all duration-300"
+            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium flex items-center gap-2 transition-all duration-300"
           >
-            <FontAwesomeIcon icon={faPlusCircle} className="text-xl" />
+            <FontAwesomeIcon icon={faPlusCircle} className="text-lg" />
             <span>Add Lead</span>
           </button>
         </div>
-      </div>
 
-      {/* Lead List */}
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Lead List</h2>
-        <table className="min-w-full border-collapse table-auto">
-          <thead>
-            <tr>
-              <th className="border p-3 text-left text-sm font-semibold text-gray-700">Name</th>
-              <th className="border p-3 text-left text-sm font-semibold text-gray-700">Email</th>
-              <th className="border p-3 text-left text-sm font-semibold text-gray-700">Phone</th>
-              <th className="border p-3 text-left text-sm font-semibold text-gray-700">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leads.map((lead) => (
-              <tr key={lead._id} className="hover:bg-gray-50">
-                <td className="border p-3 text-sm text-gray-700">{lead.name}</td>
-                <td className="border p-3 text-sm text-gray-700">{lead.email}</td>
-                <td className="border p-3 text-sm text-gray-700">{lead.phone}</td>
-                <td className="border p-3 text-sm text-gray-700">
-                  <button
-                    onClick={() => handleDeleteLead(lead._id)}
-                    className="bg-red-500 text-white p-2 rounded-md flex items-center justify-center space-x-2 hover:bg-red-600 transition-all duration-300"
+        {/* Lead List */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-700 mb-6">📑 Lead List</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm border-separate border-spacing-y-3">
+              <thead>
+                <tr className="text-left text-gray-600">
+                  <th className="px-4 py-2">Name</th>
+                  <th className="px-4 py-2">Email</th>
+                  <th className="px-4 py-2">Phone</th>
+                  <th className="px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map((lead) => (
+                  <tr
+                    key={lead._id}
+                    className="bg-white/80 backdrop-blur-md rounded-lg shadow-md transition hover:scale-[1.01] duration-300"
                   >
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                    <span>Delete</span>
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <td className="px-4 py-4 rounded-l-lg">{lead.name}</td>
+                    <td className="px-4 py-4">{lead.email}</td>
+                    <td className="px-4 py-4">{lead.phone}</td>
+                    <td className="px-4 py-4 rounded-r-lg">
+                      <button
+                        onClick={() => handleDeleteLead(lead._id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"
+                      >
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {leads.length === 0 && (
+                  <tr>
+                    <td colSpan="4" className="text-center text-gray-500 py-6">
+                      No leads found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

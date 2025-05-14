@@ -8,14 +8,14 @@ const LeadPage = () => {
   const [newLead, setNewLead] = useState({ name: "", email: "", phone: "" });
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/leads")
+    axios.get("https://test-backend-v4ym.onrender.com/api/leads")
       .then(response => setLeads(response.data))
       .catch(error => console.error("Error fetching leads:", error));
   }, []);
 
   const handleAddLead = () => {
     if (!newLead.name || !newLead.email || !newLead.phone) return;
-    axios.post("http://localhost:5000/api/leads", newLead)
+    axios.post("https://test-backend-v4ym.onrender.com/api/leads", newLead)
       .then(response => {
         setLeads([...leads, response.data]);
         setNewLead({ name: "", email: "", phone: "" });
@@ -24,7 +24,7 @@ const LeadPage = () => {
   };
 
   const handleDeleteLead = (id) => {
-    axios.delete(`http://localhost:5000/api/leads/${id}`)
+    axios.delete(`https://test-backend-v4ym.onrender.com/api/leads/${id}`)
       .then(() => {
         setLeads(leads.filter(lead => lead._id !== id));
       })
